@@ -1,0 +1,376 @@
+{
+  "version": "0.0.1",
+  "themes": {
+    "Mode": ["Light", "Dark"]
+  },
+  "variables": {
+    "--background": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#FFFFFF" },
+        { "theme": { "Mode": "Dark" }, "value": "#131124" }
+      ]
+    },
+    "--card": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#FFFFFF" },
+        { "theme": { "Mode": "Dark" }, "value": "#1A182E" }
+      ]
+    },
+    "--tile": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#F5F5F5" },
+        { "theme": { "Mode": "Dark" }, "value": "#1A182E" }
+      ]
+    },
+    "--foreground": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#2A2933" },
+        { "theme": { "Mode": "Dark" }, "value": "#E8E8EA" }
+      ]
+    },
+    "--muted-foreground": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#616167" },
+        { "theme": { "Mode": "Dark" }, "value": "#888799" }
+      ]
+    },
+    "--border": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#C5C5CB" },
+        { "theme": { "Mode": "Dark" }, "value": "#2B283D" }
+      ]
+    },
+    "--primary": {
+      "type": "color",
+      "value": "#5749F4"
+    },
+    "--primary-foreground": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "--color-success": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#A1E5A1" },
+        { "theme": { "Mode": "Dark" }, "value": "#3B4748" }
+      ]
+    },
+    "--color-success-foreground": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#003300" },
+        { "theme": { "Mode": "Dark" }, "value": "#A1E5A1" }
+      ]
+    },
+    "--color-warning": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#FFD9B2" },
+        { "theme": { "Mode": "Dark" }, "value": "#53484F" }
+      ]
+    },
+    "--color-warning-foreground": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#4D2700" },
+        { "theme": { "Mode": "Dark" }, "value": "#FFD9B2" }
+      ]
+    },
+    "--color-error": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#FFBFB2" },
+        { "theme": { "Mode": "Dark" }, "value": "#53424F" }
+      ]
+    },
+    "--color-error-foreground": {
+      "type": "color",
+      "value": [
+        { "theme": { "Mode": "Light" }, "value": "#590F00" },
+        { "theme": { "Mode": "Dark" }, "value": "#FFBFB2" }
+      ]
+    },
+    "--font-primary": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--font-secondary": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--radius-l": {
+      "type": "number",
+      "value": 40
+    },
+    "--radius-m": {
+      "type": "number",
+      "value": 24
+    },
+    "--radius-pill": {
+      "type": "number",
+      "value": 999
+    }
+  },
+  "children": [
+    {
+      "id": "overviewScreen",
+      "name": "Overview Dashboard",
+      "type": "frame",
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": "fit_content(980)",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 32,
+      "fill": "$--background",
+      "children": [
+        {
+          "id": "overviewHero",
+          "type": "frame",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 32,
+          "width": "fill_container",
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "fill": "$--border",
+            "thickness": 1
+          },
+          "cornerRadius": "$--radius-l",
+          "children": [
+            {
+              "id": "overviewEyebrow",
+              "type": "text",
+              "content": "Symphony observability",
+              "fill": "$--muted-foreground",
+              "fontFamily": "$--font-primary",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "id": "overviewTitle",
+              "type": "text",
+              "content": "Operations dashboard",
+              "fill": "$--foreground",
+              "fontFamily": "$--font-primary",
+              "fontSize": 40,
+              "fontWeight": "600"
+            },
+            {
+              "id": "overviewDescription",
+              "type": "text",
+              "content": "Top-level command center for live sessions, retry pressure, token spend, and rate-limit visibility.",
+              "fill": "$--muted-foreground",
+              "fontFamily": "$--font-secondary",
+              "fontSize": 16,
+              "textGrowth": "fixed-width",
+              "width": "fill_container"
+            }
+          ]
+        },
+        {
+          "id": "metricRow",
+          "type": "frame",
+          "layout": "horizontal",
+          "gap": 16,
+          "width": "fill_container",
+          "children": [
+            {
+              "id": "metricRunning",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--tile",
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "metricRunningLabel", "type": "text", "content": "Running", "fill": "$--muted-foreground", "fontFamily": "$--font-primary", "fontSize": 14, "fontWeight": "500" },
+                { "id": "metricRunningValue", "type": "text", "content": "5", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 32, "fontWeight": "600" }
+              ]
+            },
+            {
+              "id": "metricRetrying",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--color-warning",
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "metricRetryingLabel", "type": "text", "content": "Retrying", "fill": "$--color-warning-foreground", "fontFamily": "$--font-primary", "fontSize": 14, "fontWeight": "500" },
+                { "id": "metricRetryingValue", "type": "text", "content": "0", "fill": "$--color-warning-foreground", "fontFamily": "$--font-primary", "fontSize": 32, "fontWeight": "600" }
+              ]
+            },
+            {
+              "id": "metricTokens",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--primary",
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "metricTokensLabel", "type": "text", "content": "Total tokens", "fill": "$--primary-foreground", "fontFamily": "$--font-primary", "fontSize": 14, "fontWeight": "500" },
+                { "id": "metricTokensValue", "type": "text", "content": "95.8M", "fill": "$--primary-foreground", "fontFamily": "$--font-primary", "fontSize": 32, "fontWeight": "600" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "overviewMain",
+          "type": "frame",
+          "layout": "horizontal",
+          "gap": 16,
+          "width": "fill_container",
+          "children": [
+            {
+              "id": "runningPanel",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 12,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--card",
+              "stroke": {
+                "align": "inside",
+                "fill": "$--border",
+                "thickness": 1
+              },
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "runningPanelTitle", "type": "text", "content": "Running sessions", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 20, "fontWeight": "600" },
+                { "id": "runningPanelCopy", "type": "text", "content": "Issue list with session health, last message, and token totals.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 14, "textGrowth": "fixed-width", "width": "fill_container" }
+              ]
+            },
+            {
+              "id": "sidebarPanel",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 12,
+              "width": 360,
+              "padding": 24,
+              "fill": "$--card",
+              "stroke": {
+                "align": "inside",
+                "fill": "$--border",
+                "thickness": 1
+              },
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "sidebarPanelTitle", "type": "text", "content": "Rate limits + retry queue", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 20, "fontWeight": "600" },
+                { "id": "sidebarPanelCopy", "type": "text", "content": "Compact operational side panels for rate-limit state and queued retries.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 14, "textGrowth": "fixed-width", "width": "fill_container" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "issueScreen",
+      "name": "Issue Detail",
+      "type": "frame",
+      "x": 1520,
+      "y": 0,
+      "width": 1440,
+      "height": "fit_content(980)",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 32,
+      "fill": "$--background",
+      "children": [
+        {
+          "id": "issueHero",
+          "type": "frame",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 32,
+          "width": "fill_container",
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "fill": "$--border",
+            "thickness": 1
+          },
+          "cornerRadius": "$--radius-l",
+          "children": [
+            { "id": "issueEyebrow", "type": "text", "content": "Issue detail", "fill": "$--muted-foreground", "fontFamily": "$--font-primary", "fontSize": 12, "fontWeight": "600" },
+            { "id": "issueTitle", "type": "text", "content": "GRA-6", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 40, "fontWeight": "600" },
+            { "id": "issueDescription", "type": "text", "content": "Runtime, workspace, attempts, recent events, and retry state for a single issue session.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 16, "textGrowth": "fixed-width", "width": "fill_container" }
+          ]
+        },
+        {
+          "id": "issueCards",
+          "type": "frame",
+          "layout": "horizontal",
+          "gap": 16,
+          "width": "fill_container",
+          "children": [
+            {
+              "id": "issueSessionCard",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 10,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--card",
+              "cornerRadius": "$--radius-m",
+              "stroke": {
+                "align": "inside",
+                "fill": "$--border",
+                "thickness": 1
+              },
+              "children": [
+                { "id": "issueSessionTitle", "type": "text", "content": "Session snapshot", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 20, "fontWeight": "600" },
+                { "id": "issueSessionCopy", "type": "text", "content": "State, turns, runtime, and token totals.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 14, "textGrowth": "fixed-width", "width": "fill_container" }
+              ]
+            },
+            {
+              "id": "issueWorkspaceCard",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 10,
+              "width": "fill_container",
+              "padding": 24,
+              "fill": "$--tile",
+              "cornerRadius": "$--radius-m",
+              "children": [
+                { "id": "issueWorkspaceTitle", "type": "text", "content": "Workspace + attempts", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 20, "fontWeight": "600" },
+                { "id": "issueWorkspaceCopy", "type": "text", "content": "Local path, restart counts, and retry metadata.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 14, "textGrowth": "fixed-width", "width": "fill_container" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "issueTimelinePanel",
+          "type": "frame",
+          "layout": "vertical",
+          "gap": 10,
+          "width": "fill_container",
+          "padding": 24,
+          "fill": "$--card",
+          "stroke": {
+            "align": "inside",
+            "fill": "$--border",
+            "thickness": 1
+          },
+          "cornerRadius": "$--radius-m",
+          "children": [
+            { "id": "issueTimelineTitle", "type": "text", "content": "Recent events", "fill": "$--foreground", "fontFamily": "$--font-primary", "fontSize": 20, "fontWeight": "600" },
+            { "id": "issueTimelineCopy", "type": "text", "content": "Short event timeline plus retry/error banner and raw payload drawer.", "fill": "$--muted-foreground", "fontFamily": "$--font-secondary", "fontSize": 14, "textGrowth": "fixed-width", "width": "fill_container" }
+          ]
+        }
+      ]
+    }
+  ]
+}

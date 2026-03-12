@@ -6,7 +6,22 @@ import { usePolledResource } from '../features/observability/hooks'
 import { useCallback, useState } from 'react'
 import type { LocalWorkspace, RunningSession, RetryingSession, StateResponse, LocalWorkspacesResponse } from '../features/observability/api/types'
 
-type AgentStatus = 'running' | 'waiting' | 'done'
+type AgentStatus = 'running' | 'review' | 'waiting' | 'done'
+
+const REVIEW_STATES = new Set([
+  'review requested',
+  'in review',
+  'review',
+  'pending review',
+  'awaiting review',
+])
+
+function inferAgentStatus(backendState: string): AgentStatus {
+  if (REVIEW_STATES.has(backendState.toLowerCase())) {
+    return 'review'
+  }
+  return 'running'
+}
 
 interface AgentEntry {
   id: string
@@ -48,7 +63,7 @@ function buildAgentList(
     agents.push({
       id: session.issue_id,
       identifier: session.issue_identifier,
-      status: 'running',
+      status: inferAgentStatus(session.state),
       detail: session.state,
       sessionId: sid.length > 36 ? sid.slice(0, 36) : sid,
     })
@@ -78,7 +93,7 @@ function buildAgentList(
   }
 
   agents.sort((a, b) => {
-    const order: Record<AgentStatus, number> = { running: 0, waiting: 1, done: 2 }
+    const order: Record<AgentStatus, number> = { running: 0, review: 1, waiting: 2, done: 3 }
     const statusDiff = order[a.status] - order[b.status]
     if (statusDiff !== 0) {
       return statusDiff
@@ -91,6 +106,7 @@ function buildAgentList(
 
 const STATUS_DOT_CLASS: Record<AgentStatus, string> = {
   running: 'agent-dot--running',
+  review: 'agent-dot--review',
   waiting: 'agent-dot--waiting',
   done: 'agent-dot--done',
 }
@@ -155,6 +171,7 @@ export function AppShell() {
     sidebarData?.workspaces.workspaces ?? [],
   )
   const runningCount = agents.filter((a) => a.status === 'running').length
+  const reviewCount = agents.filter((a) => a.status === 'review').length
   const waitingCount = agents.filter((a) => a.status === 'waiting').length
   const doneCount = agents.filter((a) => a.status === 'done').length
 
@@ -193,6 +210,7 @@ export function AppShell() {
               <span className="agent-list__title">Agents</span>
               <span className="agent-list__counts">
                 {runningCount > 0 ? <span className="agent-count agent-count--running">{runningCount}</span> : null}
+                {reviewCount > 0 ? <span className="agent-count agent-count--review">{reviewCount}</span> : null}
                 {waitingCount > 0 ? <span className="agent-count agent-count--waiting">{waitingCount}</span> : null}
                 {doneCount > 0 ? <span className="agent-count agent-count--done">{doneCount}</span> : null}
               </span>

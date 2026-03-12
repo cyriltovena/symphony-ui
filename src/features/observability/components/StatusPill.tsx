@@ -1,5 +1,5 @@
 interface StatusPillProps {
-  tone?: 'default' | 'success' | 'warning' | 'error'
+  tone?: 'default' | 'success' | 'warning' | 'error' | 'review'
   children: string
 }
 

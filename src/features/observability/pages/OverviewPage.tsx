@@ -13,6 +13,14 @@ import {
   truncateMiddle,
 } from '../../../lib/formatters'
 
+const REVIEW_STATES = new Set([
+  'review requested', 'in review', 'review', 'pending review', 'awaiting review',
+])
+
+function isReviewState(state: string): boolean {
+  return REVIEW_STATES.has(state.toLowerCase())
+}
+
 export function OverviewPage() {
   const now = useTicker(1000)
   const { data, error, isLoading } = usePolledResource(getStateSnapshot, 10_000)
@@ -139,7 +147,7 @@ export function OverviewPage() {
                       </div>
                     </td>
                     <td>
-                      <StatusPill tone="success">{session.state}</StatusPill>
+                      <StatusPill tone={isReviewState(session.state) ? 'review' : 'success'}>{session.state}</StatusPill>
                     </td>
                     <td>
                       <span className="table-secondary mono-cell">{truncateMiddle(session.session_id)}</span>

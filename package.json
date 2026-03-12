@@ -1,7 +1,9 @@
 {
   "name": "symphony-ui",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
+  "description": "UI for the openai/symphony runtime, with live dashboards, transcripts, and workspace diffs.",
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

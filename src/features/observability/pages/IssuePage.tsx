@@ -935,18 +935,32 @@ function TreeNode({
 
 
 function ChangesTab({ diffBuckets }: { diffBuckets: DiffBucket[] }) {
-  const [activeBucket, setActiveBucket] = useState<DiffBucketKind>('committed')
+  const [enabledBuckets, setEnabledBuckets] = useState<Set<DiffBucketKind>>(
+    () => new Set(DIFF_BUCKETS),
+  )
   const [selectedFile, setSelectedFile] = useState<DiffFileArtifact | null>(null)
   const [expanded, setExpanded] = useState(false)
 
-  const bucket = diffBuckets.find((b) => b.kind === activeBucket)
-    ?? diffBuckets.find((b) => b.files.length > 0)
-    ?? diffBuckets[0]
-    ?? null
+  const toggleBucket = useCallback((kind: DiffBucketKind) => {
+    setEnabledBuckets((prev) => {
+      const next = new Set(prev)
+      if (next.has(kind)) {
+        if (next.size > 1) {
+          next.delete(kind)
+        }
+      } else {
+        next.add(kind)
+      }
+      return next
+    })
+  }, [])
 
   const totalFiles = diffBuckets.reduce((sum, b) => sum + b.summary.file_count, 0)
 
-  const allFiles = bucket?.files ?? []
+  const allFiles = useMemo(
+    () => diffBuckets.filter((b) => enabledBuckets.has(b.kind)).flatMap((b) => b.files),
+    [diffBuckets, enabledBuckets],
+  )
   const tree = useMemo(() => buildFileTree(allFiles), [allFiles])
   const activeFile = selectedFile && allFiles.some((f) => f.id === selectedFile.id)
     ? selectedFile
@@ -963,6 +977,8 @@ function ChangesTab({ diffBuckets }: { diffBuckets: DiffBucket[] }) {
     if (fileIndex < allFiles.length - 1) { setSelectedFile(allFiles[fileIndex + 1]) }
   }
 
+  const allEnabled = enabledBuckets.size === DIFF_BUCKETS.length
+
   if (totalFiles === 0) {
     return <div className="issue-empty">No changes detected in the workspace.</div>
   }
@@ -974,18 +990,28 @@ function ChangesTab({ diffBuckets }: { diffBuckets: DiffBucket[] }) {
           {DIFF_BUCKETS.map((kind) => {
             const b = diffBuckets.find((x) => x.kind === kind)
             const count = b?.summary.file_count ?? 0
+            const isOn = enabledBuckets.has(kind)
             return (
               <button
                 key={kind}
                 type="button"
-                className={`changes__bucket-btn${bucket?.kind === kind ? ' changes__bucket-btn--active' : ''}`}
-                onClick={() => { setActiveBucket(kind); setSelectedFile(null) }}
+                className={`changes__bucket-btn${isOn ? ' changes__bucket-btn--active' : ''}`}
+                onClick={() => toggleBucket(kind)}
               >
                 <span>{capitalize(kind)}</span>
                 <span className="changes__bucket-count">{count}</span>
               </button>
             )
           })}
+          {!allEnabled ? (
+            <button
+              type="button"
+              className="changes__bucket-btn changes__bucket-btn--reset"
+              onClick={() => setEnabledBuckets(new Set(DIFF_BUCKETS))}
+            >
+              All
+            </button>
+          ) : null}
         </div>
         <div className="changes-v2__summary">
           <span className="changes-v2__file-count">{allFiles.length} file{allFiles.length !== 1 ? 's' : ''}</span>

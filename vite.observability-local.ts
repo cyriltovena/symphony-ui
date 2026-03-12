@@ -75,6 +75,7 @@ interface IssueArtifactsPayload {
   workspace: WorkspacePayload
   diff_buckets: DiffBucket[]
   transcript: TranscriptPayload
+  pr: PrInfo | null
 }
 
 interface ExecResult {
@@ -141,6 +142,40 @@ export function observabilityLocalApiMiddleware(): Connect.NextHandleFunction {
   }
 }
 
+interface PrInfo {
+  number: number
+  title: string
+  url: string
+  state: string
+}
+
+async function lookupPr(workspacePath: string, branch: string | null): Promise<PrInfo | null> {
+  if (!branch || branch === 'main' || branch === 'master') {
+    return null
+  }
+  try {
+    const result = await execFileText('gh', [
+      'pr', 'list',
+      '--head', branch,
+      '--json', 'url,number,title,state',
+      '--limit', '1',
+    ], workspacePath)
+    const parsed = JSON.parse(result.stdout.trim()) as unknown
+    if (Array.isArray(parsed) && parsed.length > 0 && isRecord(parsed[0])) {
+      const pr = parsed[0]
+      return {
+        number: typeof pr.number === 'number' ? pr.number : 0,
+        title: typeof pr.title === 'string' ? pr.title : '',
+        url: typeof pr.url === 'string' ? pr.url : '',
+        state: typeof pr.state === 'string' ? pr.state : '',
+      }
+    }
+  } catch {
+    /* gh not available or not a github repo */
+  }
+  return null
+}
+
 async function scanWorkspaces(root: string) {
   let entries
   try {
@@ -159,7 +194,8 @@ async function scanWorkspaces(root: string) {
       } catch {
         /* not a git repo */
       }
-      return { identifier: entry.name, path: fullPath, branch }
+      const pr = await lookupPr(fullPath, branch)
+      return { identifier: entry.name, path: fullPath, branch, pr }
     }),
   )
 
@@ -177,10 +213,13 @@ async function buildIssueArtifacts(
     loadTranscript(issueIdentifier, workspacePath, sessionId),
   ])
 
+  const pr = await lookupPr(workspacePath, workspace.workspace.branch)
+
   return {
     workspace: workspace.workspace,
     diff_buckets: workspace.diffBuckets,
     transcript,
+    pr,
   }
 }
 
@@ -733,9 +772,9 @@ async function gitText(workspacePath: string, args: string[]) {
   return result.stdout.trim()
 }
 
-function execFileText(command: string, args: string[]) {
+function execFileText(command: string, args: string[], cwd?: string) {
   return new Promise<ExecResult>((resolve, reject) => {
-    execFile(command, args, { maxBuffer: 32 * 1024 * 1024 }, (error, stdout, stderr) => {
+    execFile(command, args, { maxBuffer: 32 * 1024 * 1024, cwd }, (error, stdout, stderr) => {
       if (error) {
         reject(new Error(stderr.trim() || error.message))
         return

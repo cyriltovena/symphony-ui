@@ -927,6 +927,45 @@
   color: var(--muted-foreground);
 }
 
+.issue-header__pr-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, #a78bfa 10%, transparent);
+  color: #7c3aed;
+  font-family: var(--font-secondary), monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 120ms;
+}
+
+.issue-header__pr-link:hover {
+  background: color-mix(in srgb, #a78bfa 18%, transparent);
+}
+
+.issue-header__pr-state {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.issue-header__pr-state--open {
+  color: #22c55e;
+}
+
+.issue-header__pr-state--merged {
+  color: #a78bfa;
+}
+
+.issue-header__pr-state--closed {
+  color: #ef4444;
+}
+
 .issue-header__branch {
   display: inline-flex;
   align-items: center;

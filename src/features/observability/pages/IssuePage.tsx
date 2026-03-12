@@ -11,6 +11,7 @@ import {
   Folder,
   FolderTree,
   GitBranch,
+  GitPullRequest,
   Layers,
   Maximize2,
   MessageCircle,
@@ -294,6 +295,21 @@ export function IssuePage() {
             >
               <ExternalLink size={12} />
               Linear
+            </a>
+          ) : null}
+          {artifacts.pr?.url ? (
+            <a
+              className="issue-header__pr-link"
+              href={artifacts.pr.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={artifacts.pr.title}
+            >
+              <GitPullRequest size={13} />
+              <span>#{artifacts.pr.number}</span>
+              <span className={`issue-header__pr-state issue-header__pr-state--${artifacts.pr.state.toLowerCase()}`}>
+                {artifacts.pr.state === 'OPEN' ? 'Open' : artifacts.pr.state === 'MERGED' ? 'Merged' : 'Closed'}
+              </span>
             </a>
           ) : null}
           {artifacts.workspace.branch ? (

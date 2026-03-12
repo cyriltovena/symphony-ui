@@ -175,16 +175,25 @@ export interface WorkspaceArtifacts {
   behind_count: number
 }
 
+export interface PrInfo {
+  number: number
+  title: string
+  url: string
+  state: string
+}
+
 export interface IssueArtifactsResponse {
   workspace: WorkspaceArtifacts
   diff_buckets: DiffBucket[]
   transcript: TranscriptPayload
+  pr?: PrInfo | null
 }
 
 export interface LocalWorkspace {
   identifier: string
   path: string
   branch: string | null
+  pr?: PrInfo | null
 }
 
 export interface LocalWorkspacesResponse {

@@ -1,15 +1,26 @@
 import type {
+  DiffBucket,
+  DiffBucketKind,
+  DiffChangeType,
+  DiffFileArtifact,
+  IssueArtifactsResponse,
   IssueAttempts,
   IssueResponse,
   IssueRetryState,
   IssueRunningState,
+  LocalWorkspace,
+  LocalWorkspacesResponse,
   RateLimitCredits,
   RateLimits,
   RecentEvent,
   RetryingSession,
   RunningSession,
   StateResponse,
+  TranscriptEntry,
+  TranscriptEntryKind,
+  TranscriptPayload,
   TokenTotals,
+  WorkspaceArtifacts,
 } from './types'
 
 type UnknownRecord = Record<string, unknown>
@@ -56,6 +67,15 @@ function readArray(value: unknown, field: string): unknown[] {
   }
 
   return value
+}
+
+function readStringUnion<T extends string>(value: unknown, field: string, options: readonly T[]): T {
+  const parsed = readString(value, field)
+  if (!options.includes(parsed as T)) {
+    throw new Error(`Expected ${field} to be one of: ${options.join(', ')}`)
+  }
+
+  return parsed as T
 }
 
 function readTokenTotals(value: unknown, field: string): TokenTotals {
@@ -198,6 +218,125 @@ function readIssueRetryState(value: unknown, field: string): IssueRetryState | n
   }
 }
 
+function readDiffFileArtifact(value: unknown, field: string): DiffFileArtifact {
+  if (!isRecord(value)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    id: readString(value.id, `${field}.id`),
+    path: readString(value.path, `${field}.path`),
+    previous_path: readNullableString(value.previous_path, `${field}.previous_path`),
+    change_type: readStringUnion(value.change_type, `${field}.change_type`, [
+      'added',
+      'modified',
+      'deleted',
+      'renamed',
+      'copied',
+      'binary',
+      'untracked',
+    ] satisfies readonly DiffChangeType[]),
+    additions: readNumber(value.additions, `${field}.additions`),
+    deletions: readNumber(value.deletions, `${field}.deletions`),
+    hunks: readNumber(value.hunks, `${field}.hunks`),
+    patch: readNullableString(value.patch, `${field}.patch`),
+    is_binary: readBoolean(value.is_binary, `${field}.is_binary`),
+  }
+}
+
+function readDiffBucket(value: unknown, field: string): DiffBucket {
+  if (!isRecord(value) || !isRecord(value.summary)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    kind: readStringUnion(value.kind, `${field}.kind`, [
+      'committed',
+      'staged',
+      'unstaged',
+      'untracked',
+    ] satisfies readonly DiffBucketKind[]),
+    label: readString(value.label, `${field}.label`),
+    description: readString(value.description, `${field}.description`),
+    summary: {
+      file_count: readNumber(value.summary.file_count, `${field}.summary.file_count`),
+      additions: readNumber(value.summary.additions, `${field}.summary.additions`),
+      deletions: readNumber(value.summary.deletions, `${field}.summary.deletions`),
+      hunk_count: readNumber(value.summary.hunk_count, `${field}.summary.hunk_count`),
+    },
+    files: readArray(value.files, `${field}.files`).map((entry, index) =>
+      readDiffFileArtifact(entry, `${field}.files[${index}]`),
+    ),
+  }
+}
+
+function readTranscriptEntry(value: unknown, field: string): TranscriptEntry {
+  if (!isRecord(value)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    id: readString(value.id, `${field}.id`),
+    timestamp: readNullableString(value.timestamp, `${field}.timestamp`),
+    kind: readStringUnion(value.kind, `${field}.kind`, [
+      'user',
+      'assistant',
+      'commentary',
+      'tool',
+      'system',
+    ] satisfies readonly TranscriptEntryKind[]),
+    title: readString(value.title, `${field}.title`),
+    source: readString(value.source, `${field}.source`),
+    body: readString(value.body, `${field}.body`),
+    details: readNullableString(value.details, `${field}.details`),
+    call_id: readNullableString(value.call_id, `${field}.call_id`),
+  }
+}
+
+function readTranscriptPayload(value: unknown, field: string): TranscriptPayload {
+  if (!isRecord(value) || !isRecord(value.counts)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    session_id: readNullableString(value.session_id, `${field}.session_id`),
+    session_file: readNullableString(value.session_file, `${field}.session_file`),
+    resolved_via: readStringUnion(value.resolved_via, `${field}.resolved_via`, [
+      'session_id',
+      'workspace',
+      'none',
+    ] as const),
+    updated_at: readNullableString(value.updated_at, `${field}.updated_at`),
+    counts: {
+      all: readNumber(value.counts.all, `${field}.counts.all`),
+      messages: readNumber(value.counts.messages, `${field}.counts.messages`),
+      commentary: readNumber(value.counts.commentary, `${field}.counts.commentary`),
+      tools: readNumber(value.counts.tools, `${field}.counts.tools`),
+      system: readNumber(value.counts.system, `${field}.counts.system`),
+    },
+    entries: readArray(value.entries, `${field}.entries`).map((entry, index) =>
+      readTranscriptEntry(entry, `${field}.entries[${index}]`),
+    ),
+  }
+}
+
+function readWorkspaceArtifacts(value: unknown, field: string): WorkspaceArtifacts {
+  if (!isRecord(value)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    path: readString(value.path, `${field}.path`),
+    repo_root: readNullableString(value.repo_root, `${field}.repo_root`),
+    branch: readNullableString(value.branch, `${field}.branch`),
+    base_ref: readString(value.base_ref, `${field}.base_ref`),
+    main_ref: readNullableString(value.main_ref, `${field}.main_ref`),
+    head_ref: readNullableString(value.head_ref, `${field}.head_ref`),
+    ahead_count: readNumber(value.ahead_count, `${field}.ahead_count`),
+    behind_count: readNumber(value.behind_count, `${field}.behind_count`),
+  }
+}
+
 export function parseStateResponse(value: unknown): StateResponse {
   if (!isRecord(value)) {
     throw new Error('Expected state response to be an object')
@@ -252,5 +391,44 @@ export function parseIssueResponse(value: unknown): IssueResponse {
     ),
     last_error: readNullableString(value.last_error, 'last_error'),
     tracked: isRecord(value.tracked) ? value.tracked : {},
+  }
+}
+
+function readLocalWorkspace(value: unknown, field: string): LocalWorkspace {
+  if (!isRecord(value)) {
+    throw new Error(`Expected ${field} to be an object`)
+  }
+
+  return {
+    identifier: readString(value.identifier, `${field}.identifier`),
+    path: readString(value.path, `${field}.path`),
+    branch: readNullableString(value.branch, `${field}.branch`),
+  }
+}
+
+export function parseLocalWorkspacesResponse(value: unknown): LocalWorkspacesResponse {
+  if (!isRecord(value)) {
+    throw new Error('Expected local workspaces response to be an object')
+  }
+
+  return {
+    root: readString(value.root, 'root'),
+    workspaces: readArray(value.workspaces, 'workspaces').map((entry, index) =>
+      readLocalWorkspace(entry, `workspaces[${index}]`),
+    ),
+  }
+}
+
+export function parseIssueArtifactsResponse(value: unknown): IssueArtifactsResponse {
+  if (!isRecord(value)) {
+    throw new Error('Expected issue artifacts response to be an object')
+  }
+
+  return {
+    workspace: readWorkspaceArtifacts(value.workspace, 'workspace'),
+    diff_buckets: readArray(value.diff_buckets, 'diff_buckets').map((entry, index) =>
+      readDiffBucket(entry, `diff_buckets[${index}]`),
+    ),
+    transcript: readTranscriptPayload(value.transcript, 'transcript'),
   }
 }

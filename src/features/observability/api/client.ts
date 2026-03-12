@@ -1,5 +1,5 @@
-import { parseIssueResponse, parseStateResponse } from './parsers'
-import type { IssueResponse, StateResponse } from './types'
+import { parseIssueArtifactsResponse, parseIssueResponse, parseLocalWorkspacesResponse, parseStateResponse } from './parsers'
+import type { IssueArtifactsResponse, IssueResponse, LocalWorkspacesResponse, StateResponse } from './types'
 
 const API_BASE_URL = import.meta.env.VITE_SYMPHONY_API_BASE_URL ?? ''
 export const MANUAL_REFRESH_EVENT = 'symphony:refresh-requested'
@@ -27,6 +27,27 @@ export function getStateSnapshot(): Promise<StateResponse> {
 
 export function getIssueSnapshot(issueIdentifier: string): Promise<IssueResponse> {
   return fetchJson(`/api/v1/${issueIdentifier}`, parseIssueResponse)
+}
+
+export function getIssueArtifacts(
+  issueIdentifier: string,
+  workspacePath: string,
+  sessionId: string | null,
+): Promise<IssueArtifactsResponse> {
+  const query = new URLSearchParams({ workspacePath })
+  if (sessionId) {
+    query.set('sessionId', sessionId)
+  }
+
+  return fetchJson(
+    `/api/local/issues/${issueIdentifier}/artifacts?${query.toString()}`,
+    parseIssueArtifactsResponse,
+  )
+}
+
+export function getLocalWorkspaces(root?: string): Promise<LocalWorkspacesResponse> {
+  const query = root ? `?root=${encodeURIComponent(root)}` : ''
+  return fetchJson(`/api/local/workspaces${query}`, parseLocalWorkspacesResponse)
 }
 
 export async function requestOrchestratorRefresh() {

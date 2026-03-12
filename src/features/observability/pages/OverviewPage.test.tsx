@@ -26,7 +26,7 @@ describe('OverviewPage', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText('Operations dashboard')).toBeInTheDocument()
+    expect(await screen.findByText('Sessions')).toBeInTheDocument()
     expect(screen.getByText('GRA-9')).toBeInTheDocument()
     expect(screen.getByText('Rate limits')).toBeInTheDocument()
   })

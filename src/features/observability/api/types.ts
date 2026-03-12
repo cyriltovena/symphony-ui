@@ -99,3 +99,95 @@ export interface IssueResponse {
   last_error: string | null
   tracked: Record<string, unknown>
 }
+
+export type DiffBucketKind = 'committed' | 'staged' | 'unstaged' | 'untracked'
+
+export type DiffChangeType =
+  | 'added'
+  | 'modified'
+  | 'deleted'
+  | 'renamed'
+  | 'copied'
+  | 'binary'
+  | 'untracked'
+
+export interface DiffFileArtifact {
+  id: string
+  path: string
+  previous_path: string | null
+  change_type: DiffChangeType
+  additions: number
+  deletions: number
+  hunks: number
+  patch: string | null
+  is_binary: boolean
+}
+
+export interface DiffBucket {
+  kind: DiffBucketKind
+  label: string
+  description: string
+  summary: {
+    file_count: number
+    additions: number
+    deletions: number
+    hunk_count: number
+  }
+  files: DiffFileArtifact[]
+}
+
+export type TranscriptEntryKind = 'user' | 'assistant' | 'commentary' | 'tool' | 'system'
+
+export interface TranscriptEntry {
+  id: string
+  timestamp: string | null
+  kind: TranscriptEntryKind
+  title: string
+  source: string
+  body: string
+  details: string | null
+  call_id: string | null
+}
+
+export interface TranscriptPayload {
+  session_id: string | null
+  session_file: string | null
+  resolved_via: 'session_id' | 'workspace' | 'none'
+  updated_at: string | null
+  counts: {
+    all: number
+    messages: number
+    commentary: number
+    tools: number
+    system: number
+  }
+  entries: TranscriptEntry[]
+}
+
+export interface WorkspaceArtifacts {
+  path: string
+  repo_root: string | null
+  branch: string | null
+  base_ref: string
+  main_ref: string | null
+  head_ref: string | null
+  ahead_count: number
+  behind_count: number
+}
+
+export interface IssueArtifactsResponse {
+  workspace: WorkspaceArtifacts
+  diff_buckets: DiffBucket[]
+  transcript: TranscriptPayload
+}
+
+export interface LocalWorkspace {
+  identifier: string
+  path: string
+  branch: string | null
+}
+
+export interface LocalWorkspacesResponse {
+  root: string
+  workspaces: LocalWorkspace[]
+}
